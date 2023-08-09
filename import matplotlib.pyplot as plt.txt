@@ -1,0 +1,162 @@
+import matplotlib.pyplot as plt
+import csv
+import tkinter as tk
+from tkinter import filedialog
+
+def upload_data():
+    file_path = filedialog.askopenfilename()
+    if file_path:
+        # Clear the existing patient list
+        patient_list.delete(0, tk.END)
+
+        # Read the patient data from the selected file
+        with open(file_path, 'r') as csv_file:
+            reader = csv.reader(csv_file)
+            next(reader)  # Skip the header row
+            for row in reader:
+                patient_list.insert(tk.END, f"Name: {row[0]}, Age: {row[1]}, Gender: {row[2]}, Disease: {row[3]}")
+
+# Function to handle the submit button click event
+def submit_data():
+    name = name_entry.get()
+    age = age_entry.get()
+    gender = gender_entry.get()
+    disease = disease_entry.get()
+
+    with open('patient_data.csv', 'a', newline='') as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerow([name, age, gender, disease])
+
+
+    name_entry.delete(0, tk.END)
+    age_entry.delete(0, tk.END)
+    gender_entry.delete(0, tk.END)
+    disease_entry.delete(0, tk.END)
+
+    patient_list.insert(tk.END, f"Name: {name}, Age: {age}, Gender: {gender}, Disease: {disease}")
+
+# Create the GUI
+root = tk.Tk()
+root.title('Patient Data')
+
+# Patient list
+patient_list = tk.Listbox(root, width=50)
+patient_list.pack(pady=10)
+
+# Upload button
+upload_button = tk.Button(root, text='Upload Data', command=upload_data)
+upload_button.pack(pady=5)
+
+# Entry fields for new patient data
+name_label = tk.Label(root, text='Name:')
+name_label.pack()
+name_entry = tk.Entry(root)
+name_entry.pack()
+
+age_label = tk.Label(root, text='Age:')
+age_label.pack()
+age_entry = tk.Entry(root)
+age_entry.pack()
+
+gender_label = tk.Label(root, text='Gender:')
+gender_label.pack()
+gender_entry = tk.Entry(root)
+gender_entry.pack()
+
+disease_label = tk.Label(root, text='Disease:')
+disease_label.pack()
+disease_entry = tk.Entry(root)
+disease_entry.pack()
+
+submit_button = tk.Button(root, text='Submit', command=submit_data)
+submit_button.pack(pady=5)
+
+root.mainloop()
+
+patients = []
+ages = []
+genders = []
+diseases = []
+
+with open('patient_data.csv', 'r') as csv_file:
+    reader = csv.reader(csv_file)
+
+    next(reader)
+
+    for row in reader:
+        name, age, gender, disease = row
+        patients.append(name)
+        ages.append(int(age))
+        genders.append(gender)
+        diseases.append(disease)
+
+plt.figure(figsize=(8, 6))
+plt.bar(patients, ages, color='skyblue')
+plt.xlabel('Patients')
+plt.ylabel('Age')
+plt.title('Patient Ages')
+plt.xticks(rotation=45)
+plt.show()
+
+gender_counts = {}
+for gender in genders:
+    if gender in gender_counts:
+        gender_counts[gender] += 1
+    else:
+        gender_counts[gender] = 1
+
+plt.figure(figsize=(6, 6))
+plt.bar(gender_counts.keys(), gender_counts.values(), color=['pink', 'lightblue'])
+plt.xlabel('Gender')
+plt.ylabel('Count')
+plt.title('Patient Genders')
+plt.show()
+
+disease_counts = {}
+for disease in diseases:
+    if disease in disease_counts:
+        disease_counts[disease] += 1
+    else:
+        disease_counts[disease] = 1
+
+plt.figure(figsize=(10, 6))
+plt.bar(disease_counts.keys(), disease_counts.values(), color='orange')
+plt.xlabel('Disease')
+plt.ylabel('Count')
+plt.title('Disease Types')
+plt.xticks(rotation=45)
+plt.show()
+
+plt.figure(figsize=(6, 6))
+plt.pie(gender_counts.values(), labels=gender_counts.keys(), autopct='%1.1f%%', colors=['pink', 'lightblue'])
+plt.title('Gender Distribution')
+plt.show()
+
+plt.figure(figsize=(8, 6))
+plt.scatter(diseases, ages, s=ages, c=ages, cmap='viridis')
+plt.xlabel('Disease')
+plt.ylabel('Age')
+plt.title('Patient Ages vs. Disease Types')
+plt.xticks(rotation=45)
+plt.colorbar(label='Age')
+plt.show()
+
+plt.figure(figsize=(6, 6))
+plt.boxplot(ages, vert=False)
+plt.xlabel('Age')
+plt.title('Patient Age Distribution')
+plt.show()
+
+plt.figure(figsize=(8, 6))
+plt.hist(ages, bins=5, color='green', edgecolor='black')
+plt.xlabel('Age')
+plt.ylabel('Count')
+plt.title('Age Distribution')
+plt.show()
+
+plt.figure(figsize=(8, 6))
+plt.barh(list(disease_counts.keys()), list(disease_counts.values()), color='salmon')
+plt.xlabel('Count')
+plt.ylabel('Disease')
+plt.title('Disease Counts')
+plt.show()
